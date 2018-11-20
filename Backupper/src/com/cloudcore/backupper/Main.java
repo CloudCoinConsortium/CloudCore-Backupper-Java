@@ -5,6 +5,8 @@ import com.cloudcore.backupper.core.FileSystem;
 
 public class Main {
 
+    
+    
     /* Methods */
     /**
      * Creates an Backupper instance and runs it.
@@ -12,10 +14,11 @@ public class Main {
      */
     public static void main(String[] args) {
         try {
+            System.out.println("Helllo  ");
             setup();
-            Backuper exporter = new Backuper();
+            Backupper Backup = new Backupper();
 
-            exporter.backupCoins();
+            Backup.backupCoins();
         } catch (Exception e) {
             System.out.println("Uncaught exception - " + e.getLocalizedMessage());
         }

@@ -11,17 +11,21 @@ public class FileSystem {
 
 
     /* Fields */
-
     public static final String RootPath = Paths.get("").toAbsolutePath().toString() + File.separator;
+
+    public static String CommandFolder = RootPath + Config.TAG_CLOUD_COIN + File.separator + Config.TAG_COMMAND + File.separator;
+    public static String LogsFolder = RootPath + Config.TAG_CLOUD_COIN + File.separator + Config.TAG_LOGS + File.separator
+            + Config.TAG_BACKUPER + File.separator;
+    public static String AccountFolder = RootPath + Config.TAG_CLOUD_COIN + File.separator + Config.TAG_ACCOUNTS 
+            + File.separator + Config.TAG_PASSWORDS + File.separator;
+    public static String backupFolder = LogsFolder + Config.TAG_BACKUP_DEFAULT + File.separator;
 
     public static String GalleryFolder = RootPath + Config.TAG_GALLERY + File.separator;
     public static String BankFolder = RootPath + Config.TAG_BANK + File.separator;
     public static String FrackedFolder = RootPath + Config.TAG_FRACKED + File.separator;
 
-    public static String LogsFolder = RootPath + Config.TAG_LOGS + File.separator;
-    public static String CommandFolder = RootPath + Config.TAG_COMMAND + File.separator;
-    public static String backupFolder = RootPath + Config.TAG_LOGS + File.separator + Config.TAG_BACKUP_DEFAULT + File.separator;
-    public static String TemplateFolder = RootPath + Config.TAG_TEMPLATES + File.separator;
+    public static String Tag_account = RootPath + Config.TAG_CLOUD_COIN + File.separator + Config.TAG_ACCOUNTS;
+//    public static String TemplateFolder = RootPath + Config.TAG_TEMPLATES + File.separator;
 
 
     /* Methods */
@@ -47,14 +51,12 @@ public class FileSystem {
 
             Files.createDirectories(Paths.get(RootPath));
             Files.createDirectories(Paths.get(CommandFolder));
-
-            Files.createDirectories(Paths.get(backupFolder));
-
-            Files.createDirectories(Paths.get(GalleryFolder));
-            Files.createDirectories(Paths.get(BankFolder));
-            Files.createDirectories(Paths.get(FrackedFolder));
-
             Files.createDirectories(Paths.get(LogsFolder));
+            Files.createDirectories(Paths.get(AccountFolder));
+            Files.createDirectories(Paths.get(backupFolder));
+//            Files.createDirectories(Paths.get(GalleryFolder));
+//            Files.createDirectories(Paths.get(BankFolder));
+//            Files.createDirectories(Paths.get(FrackedFolder));
         } catch (IOException e) {
             System.out.println("FS#CD: " + e.getLocalizedMessage());
             return false;
@@ -75,10 +77,40 @@ public class FileSystem {
 
             if (!path.isEmpty()) {
                 Path createDirectories = Files.createDirectories(Paths.get(path + File.separator + Config.TAG_BACKUP + getBackUpTime()));
-               backupFolder = createDirectories.toString();
-            }else{
+                backupFolder = createDirectories.toString();
+            } else {
                 Path createDirectories = Files.createDirectories(Paths.get(backupFolder + Config.TAG_BACKUP + getBackUpTime()));
-               backupFolder = createDirectories.toString();
+                backupFolder = createDirectories.toString();
+            }
+        } catch (IOException e) {
+            System.out.println("FS#CD: " + e.getLocalizedMessage());
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Creates directories in the location defined by RootPath.
+     *
+     * @param acccount_pass to create all folders for backup.
+     *
+     * @return true if backup folders were created, otherwise false.
+     */
+    public static boolean createFoldersWithAccountPassword(String acccount_pass) {
+        try {
+
+            if (!acccount_pass.isEmpty()) {
+                Path createDirectories = Files.createDirectories(Paths.get(Tag_account + File.separator + acccount_pass.trim() + File.separator));
+                GalleryFolder = Files.createDirectories(Paths.get(createDirectories.toString() + File.separator + Config.TAG_GALLERY + File.separator)).toString();
+                BankFolder = Files.createDirectories(Paths.get(createDirectories.toString() + File.separator + Config.TAG_BANK + File.separator)).toString();
+                FrackedFolder = Files.createDirectories(Paths.get(createDirectories.toString() + File.separator + Config.TAG_FRACKED + File.separator)).toString();
+            } else {
+                Path createDirectories = Files.createDirectories(Paths.get(Tag_account + File.separator + getBackUpTime() + File.separator));
+                GalleryFolder = Files.createDirectories(Paths.get(createDirectories.toString() + File.separator + Config.TAG_GALLERY + File.separator)).toString();
+                BankFolder = Files.createDirectories(Paths.get(createDirectories.toString() + File.separator + Config.TAG_BANK + File.separator)).toString();
+                FrackedFolder = Files.createDirectories(Paths.get(createDirectories.toString() + File.separator + Config.TAG_FRACKED + File.separator)).toString();
+           
             }
         } catch (IOException e) {
             System.out.println("FS#CD: " + e.getLocalizedMessage());
