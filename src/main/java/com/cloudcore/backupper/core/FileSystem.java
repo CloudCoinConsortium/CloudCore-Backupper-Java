@@ -1,17 +1,23 @@
 package com.cloudcore.backupper.core;
 
+import com.cloudcore.backupper.server.Command;
+import com.cloudcore.backupper.utils.FileUtils;
+import com.cloudcore.backupper.utils.Utils;
+
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 
 public class FileSystem {
 
 
     /* Fields */
-    public static final String RootPath = Paths.get("").toAbsolutePath().toString() + File.separator;
+    public static String RootPath = "C:\\Users\\Public\\Documents\\CloudCoin\\Accounts\\DefaultUser\\";
 
     public static String CommandFolder = RootPath + Config.TAG_CLOUD_COIN + File.separator + Config.TAG_COMMAND + File.separator;
 
@@ -70,6 +76,56 @@ public class FileSystem {
         return true;
     }
 
+    public static void changeRootPath(String rootPath) {
+        RootPath = rootPath;
+
+        CommandFolder = RootPath + Config.TAG_CLOUD_COIN + File.separator + Config.TAG_COMMAND + File.separator;
+
+        CommandHistory = RootPath + Config.TAG_CLOUD_COIN + File.separator + Config.TAG_COMMAND + File.separator + "CommandHistory" + File.separator;
+        LogsFolder = RootPath + Config.TAG_CLOUD_COIN + File.separator + Config.TAG_LOGS + File.separator + Config.TAG_BACKUPER + File.separator;
+        AccountFolder = RootPath + Config.TAG_CLOUD_COIN + File.separator + Config.TAG_ACCOUNTS + File.separator + Config.TAG_PASSWORDS + File.separator;
+        backupFolder = LogsFolder + Config.TAG_BACKUP_DEFAULT + File.separator;
+
+        GalleryFolder = RootPath + Config.TAG_GALLERY + File.separator;
+        BankFolder = RootPath + Config.TAG_BANK + File.separator;
+        FrackedFolder = RootPath + Config.TAG_FRACKED + File.separator;
+        ValutFolder = RootPath + Config.TAG_VALUT + File.separator;
+        LostFolder = RootPath + Config.TAG_LOST + File.separator;
+        MindFolder = RootPath + Config.TAG_MIND + File.separator;
+
+        Tag_account = RootPath + Config.TAG_CLOUD_COIN + File.separator + Config.TAG_ACCOUNTS;
+    }
+
+    public static ArrayList<Command> getCommands() {
+        String[] commandFiles = FileUtils.selectFileNamesInFolder(CommandFolder);
+        ArrayList<Command> commands = new ArrayList<>();
+
+        for (int i = 0, j = commandFiles.length; i < j; i++) {
+            if (!commandFiles[i].contains(Config.MODULE_NAME))
+                continue;
+
+            try {
+                String json = new String(Files.readAllBytes(Paths.get(CommandFolder + commandFiles[i])));
+                Command command = Utils.createGson().fromJson(json, Command.class);
+                command.filename = commandFiles[i];
+                commands.add(command);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        return commands;
+    }
+
+    public static void archiveCommand(Command command) {
+        try {
+            Files.move(Paths.get(CommandFolder + command.filename),
+                    Paths.get(LogsFolder + command.filename),
+                    StandardCopyOption.REPLACE_EXISTING);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     /**
      * Creates directories in the location defined by RootPath.
      *
@@ -79,12 +135,8 @@ public class FileSystem {
      */
     public static boolean createBackupDirectory(String path) {
         try {
-
             if (!path.isEmpty()) {
                 Path createDirectories = Files.createDirectories(Paths.get(path + File.separator + Config.TAG_BACKUP + getBackUpTime()));
-                backupFolder = createDirectories.toString();
-            } else {
-                Path createDirectories = Files.createDirectories(Paths.get(backupFolder + Config.TAG_BACKUP + getBackUpTime()));
                 backupFolder = createDirectories.toString();
             }
         } catch (IOException e) {
@@ -143,7 +195,6 @@ public class FileSystem {
      * @return true if backup is taken successfully.
      */
     public static boolean copyFiles(File sourceDirectory, File destinationDirectory, boolean rename) {
-
         try {
             if (sourceDirectory.isDirectory()) {
                 if (!destinationDirectory.exists()) {
@@ -180,6 +231,14 @@ public class FileSystem {
         }
 
         return true;
+    }
+
+    public static void copyFile(String fileName, String sourceFolder, String targetFolder) {
+        try {
+            Files.copy(Paths.get(sourceFolder + fileName), Paths.get(targetFolder + fileName), StandardCopyOption.REPLACE_EXISTING);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
 }
