@@ -24,26 +24,29 @@ public class Main {
             FileSystem.changeRootPath(args[0]);
         }
 
-        ArrayList<Command> commands;
-
-        FolderWatcher watcher = new FolderWatcher(FileSystem.CommandFolder);
-        System.out.println("Watching for commands at " + FileSystem.CommandFolder);
-        commands = FileSystem.getCommands();
+        ArrayList<Command> commands = FileSystem.getCommands();
         if (commands.size() > 0)
             for (Command command : commands) {
                 new Backupper().backupCoins(command);
                 FileSystem.archiveCommand(command);
             }
 
+        FolderWatcher watcher = new FolderWatcher(FileSystem.CommandFolder);
+        System.out.println("Watching for commands at " + FileSystem.CommandFolder);
         while (true) {
-            if (watcher.newFileDetected()) {
-                System.out.println(Instant.now().toString() + ": Exporting coins...");
-                commands = FileSystem.getCommands();
-                if (commands.size() > 0)
+            try {
+                Thread.sleep(1000);
+
+                if (watcher.newFileDetected()) {
+                    System.out.println(Instant.now().toString() + ": Exporting coins...");
+                    commands = FileSystem.getCommands();
                     for (Command command : commands) {
                         new Backupper().backupCoins(command);
                         FileSystem.archiveCommand(command);
                     }
+                }
+            } catch (Exception e) {
+                System.out.println("Uncaught exception - " + e.getLocalizedMessage());
             }
         }
     }
