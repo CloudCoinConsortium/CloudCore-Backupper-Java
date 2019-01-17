@@ -19,6 +19,7 @@ public class Main {
      * @param args
      */
     public static void main(String[] args) {
+        singleRun = isSingleRun(args);
         if (args.length != 0 && Files.exists(Paths.get(args[0]))) {
             System.out.println("New root path: " + args[0]);
             FileSystem.changeRootPath(args[0]);
@@ -29,6 +30,7 @@ public class Main {
             for (Command command : commands) {
                 new Backupper().backupCoins(command);
                 FileSystem.archiveCommand(command);
+                exitIfSingleRun();
             }
 
         FolderWatcher watcher = new FolderWatcher(FileSystem.CommandFolder);
@@ -43,6 +45,7 @@ public class Main {
                     for (Command command : commands) {
                         new Backupper().backupCoins(command);
                         FileSystem.archiveCommand(command);
+                        exitIfSingleRun();
                     }
                 }
             } catch (Exception e) {
@@ -51,8 +54,15 @@ public class Main {
         }
     }
 
-    /**
-     * Sets up the FileSystem instance in the defined rootFolder.
-     */
-
+    public static boolean singleRun = false;
+    public static boolean isSingleRun(String[] args) {
+        for (String arg : args)
+            if (arg.equals("singleRun"))
+                return true;
+        return false;
+    }
+    public static void exitIfSingleRun() {
+        if (singleRun)
+            System.exit(0);
+    }
 }
